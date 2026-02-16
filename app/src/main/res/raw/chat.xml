@@ -1,0 +1,15 @@
+<config xmlns="urn:org:jgroups"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/jgroups.xsd">
+
+    <UDP
+        bind_addr="match-interface:eth2,match-interface:eth0,site_local,loopback"
+        mcast_addr="${jgroups.udp.mcast_addr:239.8.8.8}"
+        mcast_port="${jgroups.udp.mcast_port:45588}"
+
+        diag.enabled="true"
+        diag.enable_tcp="false"
+        diag.enable_udp="true"
+        use_virtual_threads="false"/>
+
+</config>
