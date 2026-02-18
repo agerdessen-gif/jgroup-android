@@ -1,6 +1,7 @@
 package com.example.jgroups
 
 import android.app.Application
+import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
@@ -21,6 +22,7 @@ class ChatViewModel(application: Application) : AndroidViewModel(application) {
     private val chatManager = JGroupsChatManager(application.applicationContext)
 
     fun onNetworkEvent() {
+        Log.d("JGroupsManager", "onNetworkEvent")
         viewModelScope.launch(Dispatchers.IO) {
             chatManager.connectOrRefresh(
                 memberName = "ANDROID",

@@ -45,17 +45,28 @@ class MainActivity : ComponentActivity() {
 
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
 
-        override fun onLinkPropertiesChanged(network: Network, lp: LinkProperties) {
-            if (isNotIpipa(lp)) {
-                lifecycleScope.launch {
-                    delay(1000)
+        var connecting = false;
 
-                    val currentLp = connectivityManager.getLinkProperties(network)
-                    if (isNotIpipa(currentLp)) {
-                        viewModel.onNetworkEvent()
-                    }
-                }
+        override fun onLinkPropertiesChanged(network: Network, lp: LinkProperties) {
+            Log.d("JGroupsManager", "onLinkPropertiesChanged")
+            if (isNotIpipa(lp) && !connecting) {
+                connecting = true;
+                viewModel.onNetworkEvent()
             }
+        }
+
+        override fun onAvailable(network: Network) {
+            Log.d("JGroupsManager", "onAvailable")
+            val lp = connectivityManager.getLinkProperties(network)
+            if (isNotIpipa(lp) ) {
+                connecting = true;
+                viewModel.onNetworkEvent()
+            }
+        }
+
+        override fun onLost(network: Network) {
+            Log.d("JGroupsManager", "onLost")
+            connecting = false;
         }
     }
 
@@ -76,7 +87,6 @@ class MainActivity : ComponentActivity() {
         val request = NetworkRequest.Builder()
             .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
             .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .build()
 
         connectivityManager.registerNetworkCallback(request, networkCallback)
@@ -92,7 +102,7 @@ class MainActivity : ComponentActivity() {
             if (addr is Inet4Address && !addr.isLoopbackAddress) {
                 val host = addr.hostAddress
                 if (host != null && !host.startsWith("169.254.")) {
-                    Log.d("MainActivity", "Valid IPv4 detected: $host")
+                    Log.d("JGroupsManager", "Valid IPv4 detected: $host")
                     return true
                 }
             }
